@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4    # Обновили до v4
 
       - name: Cache Library
-        uses: actions/cache@v2
+        uses: actions/cache@v3       # Обновили до v3
         with:
           path: Library
           key: Library-GameBelka
@@ -31,7 +31,7 @@ jobs:
           allowDirtyBuild: true
 
       - name: Upload build
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4    # Обновили до v4
         with:
           name: GameBelka-Build
           path: build
