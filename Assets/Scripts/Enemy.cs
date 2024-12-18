@@ -11,7 +11,7 @@ public class Enemy : MonoBehaviour
 
     public int health; 
     public float moveSpeed = 2f; 
-    public float moveDistance = 1f; // ��������� �������� � ���� �������
+    public float moveDistance = 1f; // ��
     public float attackRange = 1f; // ��������� ��� �����
     public Animator animator; // ������ �� ��������
 
