@@ -12,7 +12,7 @@ public class MainMenu : MonoBehaviour
     public Canvas level;
     public void PlayGame_Level1()
     {
-        SceneManager.LoadScene("Lavel1");
+        SceneManager.LoadScene("Lavel1.1");
     }
     public void PlayGame_Level2()
     {

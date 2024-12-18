@@ -1,188 +1,302 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI; // Необходимо, если ты работаешь с UI
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
 public class PlayerController : MonoBehaviour
 {
+    #region РџРµСЂРµРјРµРЅРЅС‹Рµ Р·РґРѕСЂРѕРІСЊСЏ
+    [SerializeField] private Image[] Life = new Image[3];
+    public int life = 3;
+    private int life_;
+    #endregion
 
-    [SerializeField] Image[] Life = new Image[3];
-    int life = 3;
-
-
-    private int jump; // переменная нужна для дввойного прыжка
-
-    private bool facingRight = true; // персонаж смотрит в права
-
-    public float speed; //скорость
+    #region РџРµСЂРµРјРµРЅРЅС‹Рµ РґРІРёР¶РµРЅРёСЏ
+    public float speed;
     public float jumpForce;
     public Vector2 moveVector;
     public float rayDistance = 0.6f;
-    float horizantalMove = 0f;
+    private float horizantalMove = 0f;
+    private bool facingRight = true;
+    private int jump;
+    #endregion
 
-    
-    public Animator anim; //Анимация 
+    #region РљРѕРјРїРѕРЅРµРЅС‚С‹
     private Rigidbody2D rb;
+    public Animator anim;
     private SpriteRenderer spriteRenderer;
+    #endregion
 
-    public GameObject bullet; // Патрон
-    public Transform shotPoint; // Место откуда будет лететь шишка
-    private float timeBtwShots; //КД дброска
-    public float startTimeBtwShots; //время перезорядки
+    #region РЎС‚СЂРµР»СЊР±Р°
+    public GameObject bullet;
+    public Transform shotPoint;
+    private float timeBtwShots;
+    public float startTimeBtwShots;
+    #endregion
 
-    //переменные для зацема к стене
+    #region РџСЂРѕРІРµСЂРєР° Р·РµРјР»Рё Рё СЃС‚РµРЅС‹
     public Transform groundCheck;
-    public bool isGround = false; //Для проверки есть ли стена перед игроком
-    //переменные для зацема к стене
-    public Transform frontCheck; 
-    private bool isWallFront = false; //Для проверки есть ли стена перед игроком
-    int f = 0;
-    int x  = 0;
-    private void Start() {
+    public Transform frontCheck;
+    public bool isGround = false;
+    private bool isWallFront = false;
+    private float xCheck, yCheck, zCheck = 0;
+    #endregion
 
-        rb = GetComponent<Rigidbody2D>(); // получение информайии о Rigidbody2D эт вроде как управление персонажем
-        anim = GetComponent<Animator>(); // вызов анимации
+    #region РџСЂС‹Р¶РѕРє РѕС‚ СЃС‚РµРЅС‹
+    private bool blockMoveXforJump;
+    public float jumpWallTime = 0.5f;
+    private float timerJumpWall;
+    public Vector2 jumpAngle = new Vector2(3.5f, 10);
+    #endregion
 
+    #region РЎРїРѕСЃРѕР±РЅРѕСЃС‚Рё
+    private bool canJump = false;
+    private bool canDoubleJump = false;
+    private bool canShoot = false;
+    private bool canWallJump = false;
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
+        life_ = life;
+
+        // РџСЂРѕРІРµСЂСЏРµРј С‚РµРєСѓС‰СѓСЋ СЃС†РµРЅСѓ
+        string currentScene = SceneManager.GetActiveScene().name;
+        if (currentScene != "Lavel1.1")  // РћР±СЂР°С‚РёС‚Рµ РІРЅРёРјР°РЅРёРµ РЅР° РЅР°РїРёСЃР°РЅРёРµ "Lavel1.1"
+        {
+            // Р Р°Р·Р±Р»РѕРєРёСЂСѓРµРј РІСЃРµ СЃРїРѕСЃРѕР±РЅРѕСЃС‚Рё РµСЃР»Рё СЌС‚Рѕ РЅРµ РїРµСЂРІС‹Р№ СѓСЂРѕРІРµРЅСЊ
+            UnlockAllAbilities();
+        }
     }
 
-    private void FixedUpdate() {
-        if (!blockMoveXforJump)
-        {
-            moveVector.x = Input.GetAxis("Horizontal"); // Ходьба по горизонтали
-            rb.velocity = new Vector2(moveVector.x * speed, rb.velocity.y); // движение по X
-        }
-        if (facingRight == false && moveVector.x > 0) // переварот персонажа в стонону A || D
-        {
-            Flipe();
-        }
-        else if (facingRight == true && moveVector.x < 0)
-        {
-            Flipe();
-        }
-
+    // Р”РѕР±Р°РІР»СЏРµРј РЅРѕРІС‹Р№ РјРµС‚РѕРґ РґР»СЏ СЂР°Р·Р±Р»РѕРєРёСЂРѕРІРєРё РІСЃРµС… СЃРїРѕСЃРѕР±РЅРѕСЃС‚РµР№
+    private void UnlockAllAbilities()
+    {
+        canJump = true;
+        canDoubleJump = true;
+        canShoot = true;
+        canWallJump = true;
     }
+
+    private void FixedUpdate()
+    {
+        HandleMovement();
+        CheckFlip();
+    }
+
     private void Update()
     {
+        HandleWallJump();
+        CheckGroundAndWall();
+        HandleAnimation();
+        HandleJump();
+        HandleShooting();
+        CheckHealth();
+    }
 
-        WallJump();
-        Collider2D[] collidersGround = Physics2D.OverlapCircleAll(groundCheck.position, 0.1f); //Все колайдеры контактирующие с точкой (Если игрок около стены то коллайдер >0)
-        isGround = collidersGround.Length > 0; //Проверка контактирует ли с землей
-
-        Collider2D[] collidersFront = Physics2D.OverlapCircleAll(frontCheck.position, 0.001f); //Все колайдеры контактирующие с точкой (Если игрок около стены то коллайдер >0)
-        isWallFront = (collidersFront.Length > 0 && !isGround); //Проверка контактирует ли со стеной
-       
-
-        horizantalMove = Input.GetAxisRaw("Horizontal") * speed;
-        anim.SetFloat("Speed", Mathf.Abs(horizantalMove)); //Передача информации в Animator в значении Speed
-        anim.SetFloat("Jump", jump); //Передача информации в Animator в значении количество прыжков Jump
-
-        if (isWallFront == true)
+    #region РњРµС‚РѕРґС‹ РґРІРёР¶РµРЅРёСЏ
+    private void HandleMovement()
+    {
+        if (!blockMoveXforJump)
         {
-            anim.SetFloat("Silding", collidersFront.Length); //Передача информации в Animator в значении количество прыжков isWallFront
-            rb.velocity = new Vector2(rb.velocity.x,-0.5f);
+            moveVector.x = Input.GetAxis("Horizontal");
+            
+            // РџСЂРѕРІРµСЂСЏРµРј, РЅРµ СѓРїРµСЂСЃСЏ Р»Рё РёРіСЂРѕРє РІ СЃС‚РµРЅСѓ
+            if (isWallFront)
+            {
+                // Р•СЃР»Рё РёРіСЂРѕРє РїС‹С‚Р°РµС‚СЃСЏ РґРІРёРіР°С‚СЊСЃСЏ РІ СЃС‚РѕСЂРѕРЅСѓ СЃС‚РµРЅС‹, Р±Р»РѕРєРёСЂСѓРµРј РґРІРёР¶РµРЅРёРµ
+                if ((facingRight && moveVector.x > 0) || (!facingRight && moveVector.x < 0))
+                {
+                    moveVector.x = 0;
+                }
+            }
+
+            rb.velocity = new Vector2(moveVector.x * speed, rb.velocity.y);
+        }
+    }
+    private void CheckFlip()
+    {
+        if (facingRight == false && moveVector.x > 0 || facingRight == true && moveVector.x < 0)
+        {
+            Flip();
+        }
+    }
+
+    private void Flip()
+    {
+        facingRight = !facingRight;
+        Vector3 scaler = transform.localScale;
+        scaler.x *= -1;
+        transform.localScale = scaler;
+    }
+    #endregion
+
+    #region РњРµС‚РѕРґС‹ РїСЂРѕРІРµСЂРєРё СЃРѕСЃС‚РѕСЏРЅРёСЏ
+    private void CheckGroundAndWall()
+    {
+        Collider2D[] collidersGround = Physics2D.OverlapCircleAll(groundCheck.position, 0.1f);
+        isGround = collidersGround.Length > 0;
+
+        Collider2D[] collidersFront = Physics2D.OverlapCircleAll(frontCheck.position, 0.001f);
+        isWallFront = (collidersFront.Length > 0 && !isGround);
+    }
+
+    private void HandleAnimation()
+    {
+        horizantalMove = Input.GetAxisRaw("Horizontal") * speed;
+        anim.SetFloat("Speed", Mathf.Abs(horizantalMove));
+        anim.SetFloat("Jump", jump);
+
+        // РЎРєРѕР»СЊР¶РµРЅРёРµ РїРѕ СЃС‚РµРЅРµ С‚РѕР»СЊРєРѕ РµСЃР»Рё СЃРїРѕСЃРѕР±РЅРѕСЃС‚СЊ СЂР°Р·Р±Р»РѕРєРёСЂРѕРІР°РЅР°
+        if (canWallJump && isWallFront)
+        {
+            anim.SetFloat("Silding", 1);
+            rb.velocity = new Vector2(rb.velocity.x, -0.5f);
         }
         else
         {
-            anim.SetFloat("Silding", 0); //Передача информации в Animator в значении количество прыжков isWallFront
+            anim.SetFloat("Silding", 0);
         }
+    }
+    #endregion
 
-        
-        if (Input.GetKeyDown(KeyCode.Space) && jump < 2 && !isWallFront)
+    #region РњРµС‚РѕРґС‹ РїСЂС‹Р¶РєР° Рё СЃС‚СЂРµР»СЊР±С‹
+
+    private void HandleJump()
+    {
+        if (!canJump) return; // Р•СЃР»Рё РїСЂС‹Р¶РѕРє РЅРµ СЂР°Р·Р±Р»РѕРєРёСЂРѕРІР°РЅ, РІС‹С…РѕРґРёРј
+
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            rb.velocity = new Vector2(rb.velocity.x, 0); // Обнуляем вертикальную скорость перед прыжком
-            rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
-            jump += 1;
+            if (isGround)
+            {
+                ExecuteJump();
+                jump = 1;
+            }
+            else if (canDoubleJump && jump < 2 && !isWallFront)
+            {
+                ExecuteJump();
+                jump = 2;
+            }
         }
-        
+    }
 
 
 
-        if (timeBtwShots <= 0 ) { //Для того чтобы не спамить атаками
+
+    private void HandleShooting()
+    {
+        if (!canShoot) return; // Р’С‹С…РѕРґРёРј, РµСЃР»Рё СЃС‚СЂРµР»СЊР±Р° РЅРµ СЂР°Р·Р±Р»РѕРєРёСЂРѕРІР°РЅР°
+
+        if (timeBtwShots <= 0)
+        {
             if (Input.GetKeyDown(KeyCode.E))
             {
-                FireBullet(); // Вызываем метод выстрела
+                FireBullet();
             }
         }
         else
         {
             timeBtwShots -= Time.deltaTime;
         }
-        if (gameObject.transform.position.y <= -15)
-        {
-            Destroy(Life[life - 1]);
-            life -= 1;
-            gameObject.transform.position = new Vector3(0,0,0);
-
-        }
-        if(life == 0)
-        {
-            Respawn();
-        }
-
     }
     private void FireBullet()
     {
-        // Спавн снаряда
         GameObject spawnedBullet = Instantiate(bullet, shotPoint.position, shotPoint.rotation);
-        Bullet bulletScript = spawnedBullet.GetComponent<Bullet>();
-
-        if (bulletScript != null)
+        if (spawnedBullet.TryGetComponent<Bullet>(out Bullet bulletScript))
         {
-            Vector2 shootDirection = facingRight ? Vector2.right : Vector2.left; // Учитываем направление взгляда
-            bulletScript.SetDirection(shootDirection); // Передаём направление снаряду
+            Vector2 shootDirection = facingRight ? Vector2.right : Vector2.left;
+            bulletScript.SetDirection(shootDirection);
+        }
+        timeBtwShots = startTimeBtwShots;
+    }
+    #endregion
+
+    #region РњРµС‚РѕРґС‹ Р·РґРѕСЂРѕРІСЊСЏ Рё СЂРµСЃРїР°РІРЅР°
+    private void CheckHealth()
+    {
+        if (transform.position.y <= -15)
+        {
+            life--;
+            Destroy(Life[life]);
+            CheckPoint();
         }
 
-        timeBtwShots = startTimeBtwShots; // Рестарт перезарядки
+        if (life < life_)
+        {
+            life_ = life;
+            Destroy(Life[life]);
+        }
+
+        if (life <= 0)
+        {
+            Respawn();
+        }
     }
-    private void OnCollisionEnter2D(Collision2D collision) // В данном способе мы будем использовать метод OnCollisionEnter2D() – который срабатывает тогда, когда наш объект соприкасается с другим объектом
+
+    public void CheckPoint()
+    {
+        transform.position = new Vector3(xCheck, yCheck, zCheck);
+    }
+
+    private void Respawn()
+    {
+        if (life <= 0)
+        {
+            SceneManager.LoadScene("Lavel1.1");
+        }
+    }
+
+    public void ChangeLife(int damage)
+    {
+        life += damage;
+    }
+    #endregion
+
+    #region РћР±СЂР°Р±РѕС‚С‡РёРєРё СЃС‚РѕР»РєРЅРѕРІРµРЅРёР№
+    private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.collider.CompareTag("Ground"))
         {
             jump = 0;
         }
-    }
 
-
-    void Flipe()
-    {
-        facingRight = !facingRight;
-        Vector3 Scaler = transform.localScale; //оригинальное положение игрока
-
-        Scaler.x *= -1; // переворот
-        transform.localScale = Scaler;
-
-    }
-
-    private void OnCollisionEnter2D(Collision collision) //Для того чтобы магнителась к движущим платформам
-    {
         if (collision.gameObject.name.Equals("tiles"))
         {
-            this.transform.parent = collision.transform;
-        }
-        if (collision.gameObject.name.Equals("tiles"))
-        {
-            this.transform.parent = null;
+            transform.parent = collision.transform;
         }
     }
 
-    private bool blockMoveXforJump;
-    public float jumpWallTime = 0.5f;
-    private float timerJumpWall;
-    public Vector2 jumpAngle = new Vector2(3.5f, 10);
-    void WallJump()
+    private void HandleWallJump()
     {
+        if (!canWallJump) return; // Р’С‹С…РѕРґРёРј, РµСЃР»Рё РїСЂС‹Р¶РѕРє РѕС‚ СЃС‚РµРЅС‹ РЅРµ СЂР°Р·Р±Р»РѕРєРёСЂРѕРІР°РЅ
+
         if (isWallFront && !isGround && Input.GetKeyDown(KeyCode.Space))
         {
-            blockMoveXforJump = true;
-            moveVector.x = 0;
-
-            Flipe();
-            Vector3 Scaler = transform.localScale; //оригинальное положение игрока  
-            rb.velocity = new Vector2(0, 0);
-            if(Scaler.x>0) { rb.velocity = new Vector2(4, jumpAngle.y); }
-            else { rb.velocity = new Vector2(-4, jumpAngle.y); }
-            
+            ExecuteWallJump();
         }
-        if (blockMoveXforJump && (timerJumpWall += Time.deltaTime) >= jumpWallTime)
+
+        if (blockMoveXforJump)
+        {
+            UpdateWallJumpTimer();
+        }
+    }
+
+    private void ExecuteWallJump()
+    {
+        blockMoveXforJump = true;
+        moveVector.x = 0;
+        Flip();
+        rb.velocity = Vector2.zero;
+        
+        float jumpDirection = transform.localScale.x > 0 ? 4 : -4;
+        rb.velocity = new Vector2(jumpDirection, jumpAngle.y);
+    }
+
+    private void UpdateWallJumpTimer()
+    {
+        timerJumpWall += Time.deltaTime;
+        if (timerJumpWall >= jumpWallTime)
         {
             if (isWallFront || isGround || Input.GetAxisRaw("Horizontal") != 0)
             {
@@ -191,13 +305,39 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    #endregion
 
-    void Respawn()
+    public void UnlockJump()
     {
-       gameObject.transform.position = transform.position;
+        canJump = true;
     }
 
+    public void UnlockDoubleJump()
+    {
+        canDoubleJump = true;
+    }
+
+    public void UnlockShooting()
+    {
+        canShoot = true;
+    }
+
+    public void UnlockWallJump()
+    {
+        canWallJump = true;
+    }
+
+    private void ExecuteJump()
+    {
+        rb.velocity = new Vector2(rb.velocity.x, 0);
+        rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
+    }
+
+    public void SetCheckpointPosition(Vector3 position)
+    {
+        xCheck = position.x;
+        yCheck = position.y;
+        zCheck = position.z;
+    }
+    #endregion
 }
-
-
-

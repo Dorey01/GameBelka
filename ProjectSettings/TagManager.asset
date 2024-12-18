@@ -15,7 +15,7 @@ TagManager:
   - Water
   - UI
   - 
-  - 
+  - DeadEnemy
   - Solid
   - 
   - 
@@ -52,4 +52,7 @@ TagManager:
     locked: 0
   - name: FG
     uniqueID: 821711579
+    locked: 0
+  - name: DeadEnemy
+    uniqueID: 3607469219
     locked: 0

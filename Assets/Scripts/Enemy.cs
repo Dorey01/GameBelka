@@ -1,69 +1,113 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
+ 
 
 public class Enemy : MonoBehaviour
 {
-    public int health; // Здоровье врага
-    public float moveSpeed = 2f; // Скорость движения
-    public float moveDistance = 1f; // Дистанция движения в одну сторону
-    public float attackRange = 2f; // Дистанция для атаки
-    public Animator animator; // Ссылка на аниматор
+    private float timeBtwAttack;
+    public float startTimeBtwAttack;
 
-    private bool facingRight = true; // персонаж смотрит в права
+    public int health; 
+    public float moveSpeed = 2f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    public float moveDistance = 1f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    public float attackRange = 1f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+    public Animator animator; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
-    private Vector3 startPosition; // Начальная позиция врага
-    private bool movingLeft = true; // Направление движения
-    private Transform player; // Ссылка на игрока
+    private bool facingRight = true; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
 
-    int atack;
-    public Animator anim; //Анимация 
+    private Vector3 startPosition; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+    private bool movingLeft = true; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    private Transform player; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+    private Rigidbody rb;
 
+    private PlayerController playerController;
+    public Transform playerCheck;
     private void Start()
     {
-        startPosition = transform.position; // Запоминаем начальную позицию
-        player = GameObject.FindWithTag("Player").transform; // Находим игрока по тегу "Player"
-        anim = GetComponent<Animator>(); // вызов анимации
+        startPosition = transform.position; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        player = GameObject.FindWithTag("Player").transform; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ "Player"
+        playerController = FindObjectOfType<PlayerController>();
+        animator = GetComponent<Animator>(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Animator, пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     }
+
 
     private void Update()
     {
-        anim.SetFloat("Health", health); //Передача информации в Animator в значении количество прыжков Jump
-        anim.SetFloat("Atack", atack); //Передача информации в Animator в значении количество прыжков Jump
         if (health <= 0)
         {
+            // Р¤РёРєСЃРёСЂСѓРµРј РїРѕР·РёС†РёСЋ Y
+            transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+
+            // РћС‚РєР»СЋС‡Р°РµРј РІСЃРµ РєРѕР»Р»Р°Р№РґРµСЂС‹ РЅР° РѕР±СЉРµРєС‚Рµ
+            Collider2D[] colliders = GetComponents<Collider2D>();
+            foreach (Collider2D collider in colliders)
+            {
+                collider.enabled = false;
+            }
+            
+            // Р—Р°РјРѕСЂР°Р¶РёРІР°РµРј РѕР±СЉРµРєС‚ РЅР° РјРµСЃС‚Рµ
+            Rigidbody2D rb = GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                rb.velocity = Vector2.zero; // РћР±РЅСѓР»СЏРµРј СЃРєРѕСЂРѕСЃС‚СЊ
+                rb.constraints = RigidbodyConstraints2D.FreezeAll; // Р—Р°РјРѕСЂР°Р¶РёРІР°РµРј РІСЃРµ РґРІРёР¶РµРЅРёСЏ
+            }
+            
             health = 0;
-            anim.SetFloat("Health", health); //Передача информации в Animator в значении количество прыжков Jump
-            Destroy(gameObject, 1f) ; // Уничтожение врага при нуле здоровья
+            animator.SetFloat("Health", health);
+            Destroy(gameObject, 1f);
             return;
         }
 
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        if (distanceToPlayer <= attackRange)
+        // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        if (distanceToPlayer <= attackRange && timeBtwAttack <= 0)
         {
-            atack = 1;
-            anim.SetFloat("Atack", atack); //Передача информации в Animator в значении количество прыжков Jump
+            Attack();
+            timeBtwAttack = startTimeBtwAttack; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         }
-        else
+        else if (distanceToPlayer > attackRange)
         {
-            atack = 0;
-            anim.SetFloat("Atack", atack); //Передача информации в Animator в значении количество прыжков Jump
-            Patrol(); // Патрулируем, если игрок далеко
+            Patrol(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        }
 
+        // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+        if (timeBtwAttack > 0)
+        {
+            timeBtwAttack -= Time.deltaTime;
+        }
+    }
+
+    private void Attack()
+    {
+        animator.SetBool("Attack", true); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+
+    }
+
+    public void InEnemyAttack()
+    {
+        // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+        Collider2D[] collidersFront = Physics2D.OverlapCircleAll(playerCheck.position, 0.001f); //пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ >0)
+        if (collidersFront.Length > 0) { 
+            playerController.ChangeLife(-1); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         }
     }
 
     private void Patrol()
     {
+        animator.SetBool("Attack", false); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
         if (movingLeft)
         {
             transform.position -= new Vector3(moveSpeed * Time.deltaTime, 0, 0);
 
             if (transform.position.x <= startPosition.x - moveDistance)
             {
-                movingLeft = false; // Меняем направление на правое
-                Flipe();
+                movingLeft = false; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+                Flip();
             }
         }
         else
@@ -72,23 +116,23 @@ public class Enemy : MonoBehaviour
 
             if (transform.position.x >= startPosition.x)
             {
-                movingLeft = true; // Меняем направление на левое
-                Flipe();
+                movingLeft = true; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+                Flip();
             }
         }
     }
-    void Flipe()
+
+    void Flip()
     {
         facingRight = !facingRight;
-        Vector3 Scaler = transform.localScale; //оригинальное положение игрока
-
-        Scaler.x *= -1; // переворот
-        transform.localScale = Scaler;
-
+        Vector3 scaler = transform.localScale; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        scaler.x *= -1; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ X
+        transform.localScale = scaler;
     }
 
     public void TakeDamage(int damage)
     {
-        health -= damage; // Уменьшаем здоровье
+        health -= damage; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        animator.SetFloat("Health", health); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     }
 }

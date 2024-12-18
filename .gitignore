@@ -1,0 +1,9 @@
+# Создайте файл .gitignore в корне проекта и добавьте в него:
+Library/
+Temp/
+Logs/
+UserSettings/
+.vs/
+*.csproj
+*.sln
+obj/
