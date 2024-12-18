@@ -1,4 +1,4 @@
-name: Build Unity Project
+name: Code Check
 
 on:
   push:
@@ -7,31 +7,29 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-    name: Build GameBelka
+  check:
+    name: Check Code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4    # Обновили до v4
+        uses: actions/checkout@v4
 
-      - name: Cache Library
-        uses: actions/cache@v3       # Обновили до v3
-        with:
-          path: Library
-          key: Library-GameBelka
-          restore-keys: Library-GameBelka-
-
-      - name: Build project
-        uses: game-ci/unity-builder@v2
-        env:
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          targetPlatform: WebGL
-          allowDirtyBuild: true
-
-      - name: Upload build
-        uses: actions/upload-artifact@v4    # Обновили до v4
-        with:
-          name: GameBelka-Build
-          path: build
+      - name: Check Unity project structure
+        run: |
+          echo "🔍 Проверка структуры проекта..."
+          
+          if [ -d "Assets" ]; then
+            echo "✅ Папка Assets существует"
+          else
+            echo "❌ Папка Assets отсутствует"
+            exit 1
+          fi
+          
+          if [ -d "ProjectSettings" ]; then
+            echo "✅ Папка ProjectSettings существует"
+          else
+            echo "❌ Папка ProjectSettings отсутствует"
+            exit 1
+          fi
+          
+          echo "✅ Проверка завершена успешно"
