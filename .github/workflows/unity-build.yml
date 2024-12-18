@@ -1,0 +1,35 @@
+name: Code Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check:
+    name: Check Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Unity project structure
+        run: |
+          echo "🔍 Проверка структуры проекта..."
+          
+          if [ -d "Assets" ]; then
+            echo "✅ Папка Assets существует"
+          else
+            echo "❌ Папка Assets отсутствует"
+            exit 1
+          fi
+          
+          if [ -d "ProjectSettings" ]; then
+            echo "✅ Папка ProjectSettings существует"
+          else
+            echo "❌ Папка ProjectSettings отсутствует"
+            exit 1
+          fi
+          
+          echo "✅ Проверка завершена успешно"
