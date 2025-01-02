@@ -5,9 +5,9 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
     #region Переменные здоровья
-    [SerializeField] private Image[] Life = new Image[3];
-    public int life = 3;
-    private int life_;
+    [SerializeField] private Image[] Life = new Image[9];
+    public int life = 9;
+    public int life_;
     #endregion
 
     #region Переменные движения
@@ -62,7 +62,7 @@ public class PlayerController : MonoBehaviour
 
         // Проверяем текущую сцену
         string currentScene = SceneManager.GetActiveScene().name;
-        if (currentScene != "Lavel1.1")  // Обратите внимание на написание "Lavel1.1"
+        if (currentScene != "Level1.1")  // Обратите внимание на написание "Lavel1.1"
         {
             // Разблокируем все способности если это не первый уровень
             UnlockAllAbilities();
@@ -137,8 +137,22 @@ public class PlayerController : MonoBehaviour
         Collider2D[] collidersGround = Physics2D.OverlapCircleAll(groundCheck.position, 0.1f);
         isGround = collidersGround.Length > 0;
 
+        // Модифицируем проверку стены
         Collider2D[] collidersFront = Physics2D.OverlapCircleAll(frontCheck.position, 0.001f);
-        isWallFront = (collidersFront.Length > 0 && !isGround);
+        isWallFront = false;
+        
+        foreach (Collider2D collider in collidersFront)
+        {
+            // Проверяем, что коллайдер не имеет теги, которые нужно игнорировать
+            if (collider.CompareTag("Sliding"))
+            {
+                isWallFront = true;
+                break;
+            }
+        }
+        
+        // Применяем проверку только если не на земле
+        isWallFront = isWallFront && !isGround;
     }
 
     private void HandleAnimation()
@@ -166,7 +180,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!canJump) return; // Если прыжок не разблокирован, выходим
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.W))
         {
             if (isGround)
             {
@@ -190,7 +204,7 @@ public class PlayerController : MonoBehaviour
 
         if (timeBtwShots <= 0)
         {
-            if (Input.GetKeyDown(KeyCode.E))
+            if (Input.GetKeyDown(KeyCode.Space))
             {
                 FireBullet();
             }
@@ -200,7 +214,7 @@ public class PlayerController : MonoBehaviour
             timeBtwShots -= Time.deltaTime;
         }
     }
-    private void FireBullet()
+    public void FireBullet()
     {
         GameObject spawnedBullet = Instantiate(bullet, shotPoint.position, shotPoint.rotation);
         if (spawnedBullet.TryGetComponent<Bullet>(out Bullet bulletScript))
@@ -218,14 +232,14 @@ public class PlayerController : MonoBehaviour
         if (transform.position.y <= -15)
         {
             life--;
-            Destroy(Life[life]);
+            Destroy(Life[7]);
             CheckPoint();
         }
 
         if (life < life_)
         {
             life_ = life;
-            Destroy(Life[life]);
+            Destroy(Life[7]);
         }
 
         if (life <= 0)
@@ -261,9 +275,21 @@ public class PlayerController : MonoBehaviour
             jump = 0;
         }
 
-        if (collision.gameObject.name.Equals("tiles"))
+        // Изменяем проверку для прикрепления только к tiles, исключая Nut и Tablet
+        if (collision.gameObject.name.Equals("Tiles") && 
+            !collision.gameObject.CompareTag("Nut") && 
+            !collision.gameObject.CompareTag("Tablet")) 
         {
             transform.parent = collision.transform;
+        }
+    }
+
+    // Рекомендуется также добавить метод для открепления при выходе из коллизии
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.name.Equals("Tiles"))
+        {
+            transform.parent = null;
         }
     }
 
@@ -271,7 +297,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!canWallJump) return; // Выходим, если прыжок от стены не разблокирован
 
-        if (isWallFront && !isGround && Input.GetKeyDown(KeyCode.Space))
+        if (isWallFront && !isGround && Input.GetKeyDown(KeyCode.W))
         {
             ExecuteWallJump();
         }

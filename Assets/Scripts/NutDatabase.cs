@@ -16,7 +16,41 @@ public class NutDatabase
 #endif
     }
 
+ // ... existing code ...
+
     public void InitializeTableData()
+{
+    try
+    {
+        using (var connection = new SqliteConnection(dbPath))
+        {
+            connection.Open();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT COUNT(*) FROM LivelNuts";
+                long count = (long)command.ExecuteScalar();
+
+                if (count == 0)
+                {
+                    command.CommandText = @"
+                        INSERT INTO LivelNuts (LevelID, NutCount) VALUES (1, 0);
+                        INSERT INTO LivelNuts (LevelID, NutCount) VALUES (2, 0);
+                        INSERT INTO LivelNuts (LevelID, NutCount) VALUES (3, 0);
+                        INSERT INTO LivelNuts (LevelID, NutCount) VALUES (4, 0);";  // Р”РѕР±Р°РІР»РµРЅР° СЃС‚СЂРѕРєР° РґР»СЏ 4-РіРѕ СѓСЂРѕРІРЅСЏ
+                    command.ExecuteNonQuery();
+                    Debug.Log("Р’С‹РїРѕР»РЅРµРЅР° РЅР°С‡Р°Р»СЊРЅР°СЏ Р·Р°РїРёСЃСЊ РІ С‚Р°Р±Р»РёС†Сѓ");
+                }
+            }
+        }
+    }
+    catch (Exception e)
+    {
+        Debug.LogError($"РћС€РёР±РєР° РїСЂРё РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РґР°РЅРЅС‹С…: {e.Message}");
+    }
+}
+
+    // Р”РѕР±Р°РІР»СЏРµРј РЅРѕРІС‹Р№ РјРµС‚РѕРґ РґР»СЏ РѕР±РЅСѓР»РµРЅРёСЏ РѕСЂРµС…РѕРІ
+    public void ResetNutCount(int levelID)
     {
         try
         {
@@ -25,24 +59,16 @@ public class NutDatabase
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = "SELECT COUNT(*) FROM LivelNuts";
-                    long count = (long)command.ExecuteScalar();
-
-                    if (count == 0)
-                    {
-                        command.CommandText = @"
-                            INSERT INTO LivelNuts (LevelID, NutCount) VALUES (1, 0);
-                            INSERT INTO LivelNuts (LevelID, NutCount) VALUES (2, 0);
-                            INSERT INTO LivelNuts (LevelID, NutCount) VALUES (3, 0);";
-                        command.ExecuteNonQuery();
-                        Debug.Log("Добавлены начальные данные в таблицу");
-                    }
+                    command.CommandText = "UPDATE LivelNuts SET NutCount = 0 WHERE LevelID = @levelID";
+                    command.Parameters.AddWithValue("@levelID", levelID);
+                    command.ExecuteNonQuery();
+                    Debug.Log($"РћСЂРµС…Рё РґР»СЏ СѓСЂРѕРІРЅСЏ {levelID} РѕР±РЅСѓР»РµРЅС‹");
                 }
             }
         }
         catch (Exception e)
         {
-            Debug.LogError($"Ошибка при инициализации данных: {e.Message}");
+            Debug.LogError($"РћС€РёР±РєР° РїСЂРё РѕР±РЅСѓР»РµРЅРёРё РѕСЂРµС…РѕРІ: {e.Message}");
         }
     }
 
@@ -70,7 +96,7 @@ public class NutDatabase
         }
         catch (Exception e)
         {
-            Debug.LogError($"Ошибка при загрузке данных: {e.Message}");
+            Debug.LogError($"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ: {e.Message}");
         }
         return 0;
     }
@@ -98,7 +124,7 @@ public class NutDatabase
         }
         catch (Exception e)
         {
-            Debug.LogError($"Ошибка при сохранении данных: {e.Message}");
+            Debug.LogError($"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ: {e.Message}");
         }
     }
 }

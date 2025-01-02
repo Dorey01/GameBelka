@@ -7,6 +7,14 @@ TagManager:
   - Ground
   - Enemy
   - Nut
+  - Tablet
+  - Tiles
+  - Exit
+  - Sliding
+  - Boss
+  - Green
+  - Yellow
+  - Red
   layers:
   - Default
   - TransparentFX
