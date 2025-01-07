@@ -4,9 +4,14 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
+    private CameraFollow cameraFollow;
+    public AudioClip[] chorusFilter;
+    public AudioSource chorusSource;
+
+
     #region Переменные здоровья
-    [SerializeField] private Image[] Life = new Image[9];
-    public int life = 9;
+    [SerializeField] private Image[] Life = new Image[7];
+    public int life = 6;
     public int life_;
     #endregion
 
@@ -17,7 +22,7 @@ public class PlayerController : MonoBehaviour
     public float rayDistance = 0.6f;
     private float horizantalMove = 0f;
     private bool facingRight = true;
-    private int jump;
+    public int jump;
     #endregion
 
     #region Компоненты
@@ -43,6 +48,7 @@ public class PlayerController : MonoBehaviour
 
     #region Прыжок от стены
     private bool blockMoveXforJump;
+    public bool blockMoveBoss = false;
     public float jumpWallTime = 0.5f;
     private float timerJumpWall;
     public Vector2 jumpAngle = new Vector2(3.5f, 10);
@@ -56,6 +62,8 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+
+        cameraFollow = Camera.main.GetComponent<CameraFollow>();
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         life_ = life;
@@ -88,16 +96,20 @@ public class PlayerController : MonoBehaviour
     {
         HandleWallJump();
         CheckGroundAndWall();
-        HandleAnimation();
-        HandleJump();
-        HandleShooting();
+        if (!blockMoveBoss)
+        {
+            HandleShooting();
+            HandleJump();
+            HandleAnimation();
+        }
         CheckHealth();
+
     }
 
     #region Методы движения
     private void HandleMovement()
     {
-        if (!blockMoveXforJump)
+        if (!blockMoveXforJump && !blockMoveBoss)
         {
             moveVector.x = Input.GetAxis("Horizontal");
             
@@ -155,6 +167,13 @@ public class PlayerController : MonoBehaviour
         isWallFront = isWallFront && !isGround;
     }
 
+    public void JumpAndSpeed()
+    {
+        moveVector.x = 0;
+        rb.velocity = new Vector2(moveVector.x, rb.velocity.y);
+        anim.SetFloat("Jump", jump);
+        anim.SetFloat("Speed", 0);
+    }
     private void HandleAnimation()
     {
         horizantalMove = Input.GetAxisRaw("Horizontal") * speed;
@@ -180,10 +199,12 @@ public class PlayerController : MonoBehaviour
     {
         if (!canJump) return; // Если прыжок не разблокирован, выходим
 
-        if (Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
             if (isGround)
             {
+                chorusSource.clip = chorusFilter[1];
+                chorusSource.Play();
                 ExecuteJump();
                 jump = 1;
             }
@@ -206,6 +227,8 @@ public class PlayerController : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
+                chorusSource.clip = chorusFilter[0];
+                chorusSource.Play();
                 FireBullet();
             }
         }
@@ -229,19 +252,32 @@ public class PlayerController : MonoBehaviour
     #region Методы здоровья и респавна
     private void CheckHealth()
     {
+        // Проверяем, не упал ли игрок
         if (transform.position.y <= -15)
         {
-            life--;
-            Destroy(Life[7]);
-            CheckPoint();
+            if (life > 0)  // Добавляем проверку
+            {
+                life--;
+                Debug.Log(Life.Length);
+                if (life >= 0 && life < Life.Length)  // Проверяем границы массива
+                {
+                    Destroy(Life[life]);
+                }
+                CheckPoint();
+            }
         }
 
+        // Обновление отображения жизней
         if (life < life_)
         {
             life_ = life;
-            Destroy(Life[7]);
+            if (life >= 0 && life < Life.Length)  // Проверяем границы массива
+            {
+                Destroy(Life[life]);
+            }
         }
 
+        // Проверка на смерть
         if (life <= 0)
         {
             Respawn();
@@ -257,7 +293,16 @@ public class PlayerController : MonoBehaviour
     {
         if (life <= 0)
         {
-            SceneManager.LoadScene("Lavel1.1");
+            if (SceneManager.GetActiveScene().name == "Level1.1" || SceneManager.GetActiveScene().name == "Level1.2")
+            {
+                cameraFollow.ResetCam();
+                SceneManager.LoadScene("Level1.1");
+            }
+            if (SceneManager.GetActiveScene().name == "Level2.1" || SceneManager.GetActiveScene().name == "Level2.2")
+            {
+                cameraFollow.ResetCam();
+                SceneManager.LoadScene("Level2.1");
+            }
         }
     }
 
@@ -275,21 +320,28 @@ public class PlayerController : MonoBehaviour
             jump = 0;
         }
 
-        // Изменяем проверку для прикрепления только к tiles, исключая Nut и Tablet
-        if (collision.gameObject.name.Equals("Tiles") && 
-            !collision.gameObject.CompareTag("Nut") && 
-            !collision.gameObject.CompareTag("Tablet")) 
+        // Проверяем столкновение с движущейся платформой
+        if (collision.gameObject.CompareTag("Platform"))
         {
-            transform.parent = collision.transform;
+            // Проверяем, что контакт происходит сверху платформы
+            foreach (ContactPoint2D contact in collision.contacts)
+            {
+                if (contact.normal.y > 0.7f)  // Игрок находится сверху платформы
+                {
+                    transform.SetParent(collision.transform);
+                    jump = 0;
+                    break;
+                }
+            }
         }
     }
 
-    // Рекомендуется также добавить метод для открепления при выходе из коллизии
+    // Добавляем метод для отсоединения от платформы
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.gameObject.name.Equals("Tiles"))
+        if (collision.gameObject.CompareTag("Platform"))
         {
-            transform.parent = null;
+            transform.SetParent(null);
         }
     }
 
@@ -297,8 +349,10 @@ public class PlayerController : MonoBehaviour
     {
         if (!canWallJump) return; // Выходим, если прыжок от стены не разблокирован
 
-        if (isWallFront && !isGround && Input.GetKeyDown(KeyCode.W))
+        if (isWallFront && !isGround && (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)))
         {
+            chorusSource.clip = chorusFilter[1];
+            chorusSource.Play();
             ExecuteWallJump();
         }
 

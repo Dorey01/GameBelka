@@ -3,88 +3,119 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/*
+Обоснование использования паттерна State (Состояние):
+
+1. Четкое разделение поведения: В игре есть два четких состояния - нормальное и боевое,
+   каждое со своей логикой и поведением.
+
+2. Улучшение поддерживаемости: Каждое состояние инкапсулировано в отдельном классе,
+   что делает код более организованным и легким для модификации.
+
+3. Устранение сложных условных конструкций: Вместо множества проверок if/else,
+   каждое состояние само определяет свое поведение.
+
+4. Расширяемость: Легко добавить новые состояния (например, состояние победы или поражения)
+   без изменения существующего кода.
+
+5. Безопасные переходы: Гарантируется корректный вход и выход из каждого состояния
+   благодаря методам EnterState и ExitState.
+*/
+
+public interface IBattleState
+{
+    void Update(PlayertBossF context);
+    void EnterState(PlayertBossF context);
+    void ExitState(PlayertBossF context);
+}
+
 public class PlayertBossF : MonoBehaviour
 {
-    private PlayerController playerController;
-    private CameraFollow cameraFollow;
+    // Состояния
+    private IBattleState normalState;
+    private IBattleState battleState;
+    private IBattleState currentState;
+
+    // Изменили модификаторы доступа на public
+    public PlayerController playerController;
+    public CameraFollow cameraFollow;
     public Transform groundCheck;
-    public Camera camera;
     public GameObject belcka;
     public GameObject bullet;
+    public GameObject sound;
+    public GameObject soundBoss;
     public Transform shotPoint;
     public BossEnemy bossEnemy;
+    public GameObject Boss;
+    public GameObject scrol;
+    public GameObject HUD;
 
     public float speed = 2f;
-    private float startX;
-    private float endX;
-    private bool movingLeft = true;
+    public bool movingLeft = true;
+    public bool fight = false;
+    public bool bossDead = false;
+    public Vector3 currentPosition;
 
-
-    void Start()
+    private void Start()
     {
-        startX = belcka.transform.position.x;
-        endX = 560;
-        playerController = GetComponent<PlayerController>();
-        cameraFollow = camera.GetComponent<CameraFollow>();
-    
+        // Инициализация состояний
+        normalState = new NormalState();
+        battleState = new BattleState();
+        currentState = normalState;
 
-        if (cameraFollow == null)
-        {
-            Debug.LogError("�� ������ ��������� ������� CameraFollow!");
-        }
+        scrol.SetActive(false);
+        playerController = GetComponent<PlayerController>();
+        cameraFollow = Camera.main.GetComponent<CameraFollow>();
     }
 
     private void Update()
     {
-        // �������� �����
-        Vector3 currentPosition = belcka.transform.position;
-
-        if (movingLeft)
+        if (bossDead)
         {
-            currentPosition.x -= speed * Time.deltaTime;
-            if (currentPosition.x <= endX)
-            {
-                movingLeft = false;
-            }
+            TransitionToState(normalState);
         }
-        else
-        {
-            currentPosition.x += speed * Time.deltaTime;
-            if (currentPosition.x >= startX)
-            {
-                movingLeft = true;
-            }
-        }
+        currentState.Update(this);
+    }
 
-        belcka.transform.position = currentPosition;
-
-        // �������� ������� Space
-        if (Input.GetKeyDown(KeyCode.Space))
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (!bossDead && collision.CompareTag("Boss"))
         {
-            CheckCurrentZone();
-        }
-
-        // �������� ������������ � ������
-        Collider2D[] collidersGround = Physics2D.OverlapCircleAll(groundCheck.position, 0.1f);
-        foreach (Collider2D collider in collidersGround)
-        {
-            if (collider.CompareTag("Boss"))
-            {
-            
-                cameraFollow.SetFollowing(false);
-                StartCoroutine(AdjustCameraSizeAndPosition(3f, 3f));
-            }
+            TransitionToState(battleState);
+            soundBoss.SetActive(true);
+            sound.SetActive(false);
+            Vector3 bossPosition = Boss.transform.position;
+            bossPosition.x = playerController.transform.position.x + 2.4f;
+            Boss.transform.position = bossPosition;
+            Boss.SetActive(true);
+            scrol.SetActive(true);
         }
     }
 
-    private void CheckCurrentZone()
+    public void BossDaead()
+    {
+        soundBoss.SetActive(false);
+        sound.SetActive(true);
+        TransitionToState(normalState);
+        cameraFollow.ResetCam();
+        scrol.SetActive(false);
+        bossDead = true;
+    }
+
+    private void TransitionToState(IBattleState newState)
+    {
+        currentState?.ExitState(this);
+        currentState = newState;
+        currentState.EnterState(this);
+    }
+
+    public void CheckCurrentZone()
     {
         Collider2D[] overlappingColliders = Physics2D.OverlapCircleAll(belcka.transform.position, 0.1f);
         bool isInGreen = false;
         bool isInYellow = false;
         bool isInRed = false;
 
-        // ��������� ������� ����� ���
         foreach (Collider2D collider in overlappingColliders)
         {
             if (collider.CompareTag("Green"))
@@ -100,62 +131,104 @@ public class PlayertBossF : MonoBehaviour
                 isInRed = true;
             }
         }
-        
-        // ������� ���� � ������������� � ����
-        if (Input.GetKeyDown(KeyCode.Space) )
-        {
-            if (isInRed)
-            {
-                GameObject spawnedBullet = Instantiate(bullet, shotPoint.position, shotPoint.rotation);
-                if (spawnedBullet.TryGetComponent<Bullet>(out Bullet bulletScript))
-                {
-                    if (isInGreen)
-                    {
-                        Debug.Log("����� ��������� � ������� ����!");
-                        bulletScript.SetZone("Green");
-                    }
-                    else if (isInYellow)
-                    {
-                        Debug.Log("����� ��������� � ������ ����!");
-                        bulletScript.SetZone("Yellow");
-                    }
 
-                    // ������������� ����������� ���� (��������������, ��� ��� �����)
-                    Vector2 shootDirection = Vector2.right; // ��� ����� ������ �����������
-                    bulletScript.SetDirection(shootDirection);
-                }
-            }
-            else
+        if (!isInRed)
+        {
+            GameObject spawnedBullet = Instantiate(bullet, shotPoint.position, shotPoint.rotation);
+            if (spawnedBullet.TryGetComponent<Bullet>(out Bullet bulletScript))
             {
-                bossEnemy.AttackRed();
+                if (isInGreen)
+                {
+                    Debug.Log("Белка находится в зеленой зоне!");
+                    bulletScript.SetZone("Green");
+                }
+                else if (isInYellow)
+                {
+                    Debug.Log("Белка находится в желтой зоне!");
+                    bulletScript.SetZone("Yellow");
+                }
+
+                Vector2 shootDirection = Vector2.right;
+                bulletScript.SetDirection(shootDirection);
             }
         }
- 
+        else
+        {
+            bossEnemy.AttackRed();
+        }
+    }
+}
+
+public class NormalState : IBattleState
+{
+    public void Update(PlayertBossF context)
+    {
+        context.playerController.blockMoveBoss = false;
+        context.fight = false;
     }
 
-    private IEnumerator AdjustCameraSizeAndPosition(float targetSize, float duration)
+    public void EnterState(PlayertBossF context)
     {
-        float startSize = camera.orthographicSize;
-        Vector3 startPosition = camera.transform.position;
-        Vector3 offset = new Vector3(2f, 1f, 0f);
+        context.fight = false;
+        context.playerController.blockMoveBoss = false;
+    }
 
-        Vector3 targetPosition = new Vector3(
-            playerController.transform.position.x,
-            playerController.transform.position.y,
-            camera.transform.position.z
-        ) + offset;
+    public void ExitState(PlayertBossF context)
+    {
+        // Логика при выходе из нормального состояния
+    }
+}
 
-        float elapsed = 0f;
+public class BattleState : IBattleState
+{
+    private float nextFireTime = 0f;
+    private float fireRate = 1f;
 
-        while (elapsed < duration)
+    public void Update(PlayertBossF context)
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && Time.time >= nextFireTime)
         {
-            elapsed += Time.deltaTime;
-            camera.orthographicSize = Mathf.Lerp(startSize, targetSize, elapsed / duration);
-            camera.transform.position = Vector3.Lerp(startPosition, targetPosition, elapsed / duration);
-            yield return null;
+            nextFireTime = Time.time + fireRate;
+            context.CheckCurrentZone();
         }
 
-        camera.orthographicSize = targetSize;
-        camera.transform.position = targetPosition;
+        Vector3 currentPosition = context.belcka.transform.position;
+        float minX = context.HUD.transform.position.x - 330f;
+        float maxX = context.HUD.transform.position.x + 390f;
+
+        if (context.movingLeft)
+        {
+            currentPosition.x -= context.speed * Time.deltaTime;
+            if (currentPosition.x <= minX)
+            {
+                currentPosition.x = minX;
+                context.movingLeft = false;
+            }
+        }
+        else
+        {
+            currentPosition.x += context.speed * Time.deltaTime;
+            if (currentPosition.x >= maxX)
+            {
+                currentPosition.x = maxX;
+                context.movingLeft = true;
+            }
+        }
+
+        context.playerController.JumpAndSpeed();
+        context.belcka.transform.position = currentPosition;
+    }
+
+    public void EnterState(PlayertBossF context)
+    {
+        context.fight = true;
+        context.playerController.blockMoveBoss = true;
+        context.cameraFollow.SetSmallCamera();
+    }
+
+    public void ExitState(PlayertBossF context)
+    {
+        context.fight = false;
+        context.playerController.blockMoveBoss = false;
     }
 }

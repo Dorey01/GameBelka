@@ -6,13 +6,19 @@ using UnityEngine.SceneManagement;
 public class PauseS : MonoBehaviour
 {
     public GameObject panel;
-
+    private CameraFollow cameraFollow;
     public void Start()
     {
         Time.timeScale = 1f;
+        cameraFollow = Camera.main.GetComponent<CameraFollow>();
+
+
     }
     public void Puse()
     {
+        
+
+
         if (panel.active == true)
         {
             panel.SetActive(false);
@@ -35,8 +41,8 @@ public class PauseS : MonoBehaviour
 
     public void Menu()
     {
-        
         SceneManager.LoadScene("Menu");
+        cameraFollow.ResetCam();
     }
 
     public void Update()

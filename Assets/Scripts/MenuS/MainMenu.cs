@@ -1,54 +1,87 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    // Start is called before the first frame update
+    [Header("Меню")]
+    [SerializeField] private Canvas menuCanvas;
+    [SerializeField] private Canvas optionsCanvas;
+    [SerializeField] private Canvas levelsCanvas;
 
-    public Canvas menu;
-    public Canvas opshen;
-    public Canvas level;
-    public void PlayGame_Level1()
+    #region Управление меню
+    public void ShowMainMenu()
     {
+        menuCanvas.enabled = true;
+        optionsCanvas.enabled = false;
+        levelsCanvas.enabled = false;
+    }
+
+    public void ShowLevels()
+    {
+        menuCanvas.enabled = false;
+        optionsCanvas.enabled = false;
+        levelsCanvas.enabled = true;
+    }
+
+    public void ShowOptions()
+    {
+
+        menuCanvas.enabled = false;
+        optionsCanvas.enabled = true;
+        levelsCanvas.enabled = false;
+    }
+    #endregion
+
+    #region Загрузка уровней
+    public void NewGame()
+    {
+        SceneManager.LoadScene("History2");
+        LevelManager.Instance.ClearAll();
+    }
+    public void LoadLevel1() 
+    { 
+
         SceneManager.LoadScene("Level1.1");
+        LevelManager.Instance.ClearAll();
     }
-    public void PlayGame_Level2()
+
+    public void LoadLevel2()
     {
+
         SceneManager.LoadScene("Level1.2");
-    }
-    public void PlayGame_Level3()
-    {
-        SceneManager.LoadScene("Level3");
+        LevelManager.Instance.ClearAll();
     }
 
-    public void Levls()
+    public void LoadLevel3()
     {
-        menu.enabled = false;
-        level.enabled = true;
+
+        SceneManager.LoadScene("Level2.1");
+        LevelManager.Instance.ClearAll();
+    }
+    public void LoadLevel4()
+    {
+
+        SceneManager.LoadScene("Level2.2");
+        LevelManager.Instance.ClearAll();
     }
 
 
-    public void Management()
-    {
-        menu.enabled = false;
-        opshen.enabled = true;
-    }
-    public void Quit()
+    #endregion
+
+    public void QuitGame()
     {
         Application.Quit();
+
     }
 
-    public void Update()
+    private void Update()
     {
-        if(Input.GetKeyUp(KeyCode.Escape))
+      
+        // Обработка кнопки Escape
+        if (Input.GetKeyUp(KeyCode.Escape))
         {
-            menu.enabled = true;
-            level.enabled = false;
-            opshen.enabled = false;
+            ShowMainMenu();
         }
     }
-
 }

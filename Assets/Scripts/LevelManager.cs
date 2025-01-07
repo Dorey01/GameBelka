@@ -37,7 +37,18 @@ public class LevelManager : MonoBehaviour
     public void SaveNutCount(float nutCount)
     {
         database.SaveNutCount(CurrentLevelID, nutCount);
-        Debug.Log($"Сохранено {nutCount} орехов для уровня {CurrentLevelID}");
+      
+    }
+
+    public void ClearAll()
+    {
+        float nutCount = 0;
+        for (int i = 0; i <= 4; i++)
+        {
+
+            database.SaveNutCount(i, nutCount);
+        }
+
     }
 
     public float LoadNutCount(int levelID)
@@ -91,9 +102,13 @@ public class LevelManager : MonoBehaviour
                 CurrentLevelID = 2;
                 CurrentLevelName = "Уровень 2";
                 break;
-            case "Level3":
+            case "Level2.1":
                 CurrentLevelID = 3;
                 CurrentLevelName = "Уровень 3";
+                break;
+            case "Level2.2":
+                CurrentLevelID = 4;
+                CurrentLevelName = "Уровень 4";
                 break;
             default:
                 Debug.LogWarning($"Неизвестный уровень: {sceneName}");
@@ -107,11 +122,11 @@ public class LevelManager : MonoBehaviour
 
     public bool IsLevelValid(int levelID)
     {
-        return levelID >= 1 && levelID <= 3;
+        return levelID >= 1 && levelID <= 4;
     }
 
     public int GetTotalLevels()
     {
-        return 3;
+        return 4;
     }
 }

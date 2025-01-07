@@ -6,12 +6,27 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/NewHistory.unity
+    guid: 71af134a133ccc74c8ef9ddb6213f33e
+  - enabled: 1
     path: Assets/Scenes/Menu.unity
     guid: 08f4e25a5cb1d1f41ba743c63828d144
+  - enabled: 1
+    path: Assets/Scenes/History2.unity
+    guid: c7bd2d528af17c446aea1e1f81e2dabb
   - enabled: 1
     path: Assets/Scenes/Level1.1.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
     path: Assets/Scenes/Level1.2.unity
     guid: 18c397905d319ea4293ec1a85d808503
+  - enabled: 1
+    path: Assets/Scenes/Level2.1.unity
+    guid: 3e5f0e1b89f79e444a7f50d304ab2a1e
+  - enabled: 1
+    path: Assets/Scenes/Level2.2.unity
+    guid: d6d8124bfe8653a459a3e4ceac10271e
+  - enabled: 1
+    path: Assets/Scenes/TheEndHistory.unity
+    guid: 9e97f6e5b699f594088361d33af90c2a
   m_configObjects: {}

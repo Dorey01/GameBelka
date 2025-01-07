@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class Exit : MonoBehaviour
 {
+    private Animation anim;
     private static float SaveNut;
     public static void Save(float Nut)
     {
@@ -13,7 +14,6 @@ public class Exit : MonoBehaviour
     {
         LevelManager.Instance.SaveNutCount(SaveNut);
 
-        // Получаем текущее имя сцены
         string sceneName = SceneManager.GetActiveScene().name;
 
         switch (sceneName)
@@ -26,14 +26,21 @@ public class Exit : MonoBehaviour
                 SceneManager.LoadScene("Level2.1");
                 break;  // Добавлен break
 
-            case "Level3":
+            case "Level2.1":
                 // Здесь нужно указать, какую сцену загружать после Level3
-                SceneManager.LoadScene("MainMenu"); // или другую сцену
+                SceneManager.LoadScene("Level2.2"); // или другую сцену
+                break;  // Добавлен break
+            case "Level2.2":
+                // Здесь нужно указать, какую сцену загружать после Level3
+                SceneManager.LoadScene("TheEndHistory"); // или другую сцену
                 break;  // Добавлен break
 
             default:
                 Debug.LogWarning($"Неизвестный уровень: {sceneName}");
                 break;
         }
+
     }
+
+   
 }

@@ -17,7 +17,6 @@ public class Shep : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-
         playerController.ChangeLife(-1);
         playerController.CheckPoint();
         

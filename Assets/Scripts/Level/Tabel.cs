@@ -5,14 +5,14 @@ public class Tabel : MonoBehaviour
     #region Переменные
     [SerializeField] private string tabelType; // Тип таблички (Jump, DoubleJump, Sheshka, Prig)
     private PlayerController player;
-    private bool isActivated = false;
+
     public GameObject tabelAct;
     public GameObject jump;
     public GameObject jumpjump;
     public GameObject space;
     public GameObject e;
     public GameObject run;
-    int _jump, _space, _run, _jumpjump, _e;
+    int _jump, _space, _jumpjump, _e;
 
     // Позиция чекпоинта
     private Vector3 checkpointPosition;
@@ -82,7 +82,7 @@ public class Tabel : MonoBehaviour
                 Debug.LogWarning($"Неизвестный тип таблички: {tabelType}");
                 break;
         }
-        isActivated = true;
+
     }
 
     private void ActivateJump()
@@ -113,7 +113,6 @@ public class Tabel : MonoBehaviour
     private void ActivateRun()
     {
         run.SetActive(true);
-        _run = 1;
         tabelAct.SetActive(true);
         if (player != null)
         {

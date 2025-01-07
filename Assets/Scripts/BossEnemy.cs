@@ -3,34 +3,84 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Контроллер босса-противника.
+/// </summary>
 public class BossEnemy : MonoBehaviour
 {
-    public int life = 4;
+    /// <summary>
+    /// Количество жизней босса.
+    /// </summary>
+    public int life;
 
+    /// <summary>
+    /// Компонент аниматора.
+    /// </summary>
     public Animator anim;
+
+    /// <summary>
+    /// Ссылка на контроллер игрока.
+    /// </summary>
     public PlayerController playerController;
 
-    // Start is called before the first frame update
-    void Start()
+    /// <summary>
+    /// Ссылка на компонент PlayerBossF.
+    /// </summary>
+    public PlayertBossF playerBossF;
+
+    /// <summary>
+    /// Инициализация компонентов.
+    /// </summary>
+    private void Start()
     {
-        anim = GetComponent<Animator>();
+        this.anim = this.GetComponent<Animator>();
     }
+
+    /// <summary>
+    /// Обновление состояния босса.
+    /// </summary>
+    public void Update()
+    {
+        if (life <= 0)
+        {
+            Destroy(this.gameObject);
+            playerBossF.BossDaead();
+            
+        }
+    }
+
+    /// <summary>
+    /// Изменяет количество жизней босса.
+    /// </summary>
+    /// <param name="damage">Величина изменения жизней.</param>
     public void ChangeLife(int damage)
     {
-        life += damage;
+        this.life += damage;
     }
-    public void AttackRed() {
-        anim.SetBool("Attack", true);
+
+    /// <summary>
+    /// Активирует анимацию атаки босса.
+    /// </summary>
+    public void AttackRed()
+    {
+        this.anim.SetBool("Attack", true);
     }
+
+    /// <summary>
+    /// Обрабатывает попадание атаки босса по игроку.
+    /// </summary>
     public void InEnemyAttack()
     {
-        playerController.ChangeLife(-3);
-        anim.SetBool("Attack", false);
-
+        this.playerController.ChangeLife(-1);
+        this.anim.SetBool("Attack", false);
     }
+
+    /// <summary>
+    /// Наносит урон боссу.
+    /// </summary>
+    /// <param name="damage">Величина урона.</param>
     public void TakeDamage(int damage)
     {
-        life -= damage; 
+        this.life -= damage;
     }
-
 }

@@ -15,6 +15,7 @@ TagManager:
   - Green
   - Yellow
   - Red
+  - Platform
   layers:
   - Default
   - TransparentFX
