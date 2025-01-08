@@ -20,23 +20,22 @@ public class Exit : MonoBehaviour
         {
             case "Level1.1":
                 SceneManager.LoadScene("Level1.2");
-                break;  // Добавлен break
+                break; 
 
             case "Level1.2":
                 SceneManager.LoadScene("Level2.1");
-                break;  // Добавлен break
+                break;  
 
             case "Level2.1":
-                // Здесь нужно указать, какую сцену загружать после Level3
-                SceneManager.LoadScene("Level2.2"); // или другую сцену
-                break;  // Добавлен break
+
+                SceneManager.LoadScene("Level2.2"); 
+                break;  
             case "Level2.2":
-                // Здесь нужно указать, какую сцену загружать после Level3
-                SceneManager.LoadScene("TheEndHistory"); // или другую сцену
-                break;  // Добавлен break
+                SceneManager.LoadScene("TheEndHistory"); 
+                break; 
 
             default:
-                Debug.LogWarning($"Неизвестный уровень: {sceneName}");
+                Debug.LogWarning($"РќРµРёР·РІРµСЃС‚РЅС‹Р№ СѓСЂРѕРІРµРЅСЊ: {sceneName}");
                 break;
         }
 

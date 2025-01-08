@@ -70,7 +70,7 @@ public class PlayerController : MonoBehaviour
 
         // Проверяем текущую сцену
         string currentScene = SceneManager.GetActiveScene().name;
-        if (currentScene != "Level1.1")  // Обратите внимание на написание "Lavel1.1"
+        if (currentScene != "Level1.1")  
         {
             // Разблокируем все способности если это не первый уровень
             UnlockAllAbilities();

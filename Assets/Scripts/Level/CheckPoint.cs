@@ -5,8 +5,7 @@ using UnityEngine;
 public class CheckPoint : MonoBehaviour
 {
     private PlayerController player;
-    // Start is called before the first frame update
-    // Позиция чекпоинта
+    // РџРѕР·РёС†РёСЏ С‡РµРєРїРѕРёРЅС‚Р°
     private Vector3 checkpointPosition;
 
 

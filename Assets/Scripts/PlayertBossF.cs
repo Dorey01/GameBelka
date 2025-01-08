@@ -37,7 +37,6 @@ public class PlayertBossF : MonoBehaviour
     private IBattleState battleState;
     private IBattleState currentState;
 
-    // Изменили модификаторы доступа на public
     public PlayerController playerController;
     public CameraFollow cameraFollow;
     public Transform groundCheck;
@@ -178,10 +177,6 @@ public class NormalState : IBattleState
         context.playerController.blockMoveBoss = false;
     }
 
-    public void ExitState(PlayertBossF context)
-    {
-        // Логика при выходе из нормального состояния
-    }
 }
 
 public class BattleState : IBattleState

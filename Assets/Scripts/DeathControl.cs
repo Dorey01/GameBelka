@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class DeathControl : MonoBehaviour
 {
-    // Start is called before the first frame update
+
     void Start()
     {
-        // Уничтожить объект через 1 секунду
+        // РЈРЅРёС‡С‚РѕР¶РёС‚СЊ РѕР±СЉРµРєС‚ С‡РµСЂРµР· 1 СЃРµРєСѓРЅРґСѓ
         Destroy(gameObject, 1f);
     }
 
-    // Update is called once per frame
+
     void Update()
     {
 

@@ -14,7 +14,7 @@ public class Parallax : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer == null)
         {
-            Debug.LogError("SpriteRenderer не найден!");
+            Debug.LogError("SpriteRenderer РЅРµ РЅР°Р№РґРµРЅ!");
             enabled = false;
             return;
         }
@@ -25,16 +25,16 @@ public class Parallax : MonoBehaviour
 
     private void FindCamera()
     {
-        // Ищем камеру по тегу MainCamera
+        // РС‰РµРј РєР°РјРµСЂСѓ РїРѕ С‚РµРіСѓ MainCamera
         cam = GameObject.FindWithTag("MainCamera");
         if (cam == null)
         {
-            Debug.LogError("Камера с тегом 'MainCamera' не найдена!");
+            Debug.LogError("РљР°РјРµСЂР° СЃ С‚РµРіРѕРј 'MainCamera' РЅРµ РЅР°Р№РґРµРЅР°!");/
             enabled = false;
         }
         else
         {
-            Debug.Log("Камера найдена для параллакса");
+            Debug.Log("РљР°РјРµСЂР° РЅР°Р№РґРµРЅР° РґР»СЏ РїР°СЂР°Р»Р»Р°РєСЃР°");
         }
     }
 

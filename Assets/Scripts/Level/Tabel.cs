@@ -22,8 +22,6 @@ public class Tabel : MonoBehaviour
     private void Start()
     {
         checkpointPosition = transform.position;
-
-        // Убедимся, что все подсказки выключены при старте
         if (_jump != 0) {
             jump.SetActive(false);
             _jump = 0;
