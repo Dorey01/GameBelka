@@ -1,83 +1,99 @@
-// Скрипт для следования камеры за игроком
+// РЎРєСЂРёРїС‚ РґР»СЏ СЃР»РµРґРѕРІР°РЅРёСЏ РєР°РјРµСЂС‹ Р·Р° РёРіСЂРѕРєРѕРј
 using UnityEngine.SceneManagement;
 using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    // Трансформ объекта, за которым следует камера
+    // РўСЂР°РЅСЃС„РѕСЂРј РѕР±СЉРµРєС‚Р°, Р·Р° РєРѕС‚РѕСЂС‹Рј СЃР»РµРґСѓРµС‚ РєР°РјРµСЂР°
     public Transform followTransform;
-    // Основная камера
+    // РћСЃРЅРѕРІРЅР°СЏ РєР°РјРµСЂР°
     public Camera mainCamera;
-    // Смещение камеры во время босс-файта
+    // РЎРјРµС‰РµРЅРёРµ РєР°РјРµСЂС‹ РІРѕ РІСЂРµРјСЏ Р±РѕСЃСЃ-С„Р°Р№С‚Р°
     public Vector3 bossOffset = new Vector3(2f, 1f, 0f);
-    // Позиция для сброса
+    // РџРѕР·РёС†РёСЏ РґР»СЏ СЃР±СЂРѕСЃР°
     public Vector3 reset = new Vector3(0f, 0f, 0f);
-    // Стандартный размер камеры
+    // РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ СЂР°Р·РјРµСЂ РєР°РјРµСЂС‹
     public float defaultSize = 5f;
-    // Размер камеры во время босс-файта
+    // Р Р°Р·РјРµСЂ РєР°РјРµСЂС‹ РІРѕ РІСЂРµРјСЏ Р±РѕСЃСЃ-С„Р°Р№С‚Р°
     public float bossSize = 3f;
-    // Флаг босс-файта
+    // Р¤Р»Р°Рі Р±РѕСЃСЃ-С„Р°Р№С‚Р°
     public bool isBossFight = false;
     public bool isBossFight1 = false;
+    public CameraMenu cameraMenu;
 
     private void Awake()
     {
 
-        // Проверяем, есть ли другие камеры с этим скриптом
+        // РџСЂРѕРІРµСЂСЏРµРј, РµСЃС‚СЊ Р»Рё РґСЂСѓРіРёРµ РєР°РјРµСЂС‹ СЃ СЌС‚РёРј СЃРєСЂРёРїС‚РѕРј
         CameraFollow[] cameras = FindObjectsOfType<CameraFollow>();
-        if (cameras.Length > 1 && (SceneManager.GetActiveScene().name != "Menu" && SceneManager.GetActiveScene().name != "NewHistory" && SceneManager.GetActiveScene().name != "History2" && SceneManager.GetActiveScene().name != "TheEndHistory"))
+        if (cameras.Length > 1 && (SceneManager.GetActiveScene().name != "Menu" && SceneManager.GetActiveScene().name != "NewHistory" && SceneManager.GetActiveScene().name != "History2"))
         {
-            // Если эта камера не первая найденная, удаляем её
-            if (cameras[0] != this)
+            // Р•СЃР»Рё СЌС‚Р° РєР°РјРµСЂР° РЅРµ РїРµСЂРІР°СЏ РЅР°Р№РґРµРЅРЅР°СЏ, СѓРґР°Р»СЏРµРј РµС‘
+            if (cameras[0] != this )
             {
+                
                 Destroy(gameObject);
                 return;
             }
         }
-        // Инициализация основной камеры
+        // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РѕСЃРЅРѕРІРЅРѕР№ РєР°РјРµСЂС‹
         mainCamera = Camera.main;
         if (mainCamera == null)
         {
             mainCamera = GetComponent<Camera>();
             if (mainCamera == null)
             {
-                Debug.LogError("Камера не найдена!");
+                Debug.LogError("РљР°РјРµСЂР° РЅРµ РЅР°Р№РґРµРЅР°!");
                 enabled = false;
                 return;
             }
         }
 
-        // Инициализация начальных параметров
+        // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РЅР°С‡Р°Р»СЊРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ
         mainCamera.orthographicSize = defaultSize;
     }
    
 
     private void Start()
     {
+        cameraMenu = GetComponent<CameraMenu>();
         FindPlayer();
     }
 
     private void FindPlayer()
     {
-        // Проверяем, что мы не в главном меню
+        // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РјС‹ РЅРµ РІ РіР»Р°РІРЅРѕРј РјРµРЅСЋ
         if (SceneManager.GetActiveScene().name != "Menu" && SceneManager.GetActiveScene().name != "NewHistory" && SceneManager.GetActiveScene().name != "History2" && SceneManager.GetActiveScene().name != "TheEndHistory")
         {
             GameObject player = GameObject.FindWithTag("Player");
             if (player != null)
             {
                 followTransform = player.transform;
-                Debug.Log("Игрок успешно найден");
+                Debug.Log("РРіСЂРѕРє СѓСЃРїРµС€РЅРѕ РЅР°Р№РґРµРЅ");
             }
             else
             {
-                Debug.LogError("Объект с тегом 'Player' не найден!");
+                Debug.LogError("РћР±СЉРµРєС‚ СЃ С‚РµРіРѕРј 'Player' РЅРµ РЅР°Р№РґРµРЅ!");
                 enabled = false;
             }
         }
     }
     private void Update()
     {
-        // Проверяем наличие игрока
+        if (SceneManager.GetActiveScene().name == "TheEndHistory")
+        {
+            Destroy(gameObject);
+            return;
+        }
+        if (SceneManager.GetActiveScene().name != "Menu")
+        {
+            cameraMenu.enabled = false;
+        }
+        else
+        {
+            cameraMenu.enabled = true;
+        }
+        // РџСЂРѕРІРµСЂСЏРµРј РЅР°Р»РёС‡РёРµ РёРіСЂРѕРєР°
         if (followTransform == null)
         {
             FindPlayer();
@@ -100,26 +116,26 @@ public class CameraFollow : MonoBehaviour
         {
             targetPosition = new Vector3(
                 followTransform.position.x,
-                0,  // Теперь камера следит и за вертикальным движением
+                0,  // РўРµРїРµСЂСЊ РєР°РјРµСЂР° СЃР»РµРґРёС‚ Рё Р·Р° РІРµСЂС‚РёРєР°Р»СЊРЅС‹Рј РґРІРёР¶РµРЅРёРµРј
                 transform.position.z
             );
             targetSize = defaultSize;
         }
 
-        // Плавное перемещение камеры
+        // РџР»Р°РІРЅРѕРµ РїРµСЂРµРјРµС‰РµРЅРёРµ РєР°РјРµСЂС‹
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * 5f);
 
-        // Плавное изменение размера камеры
+        // РџР»Р°РІРЅРѕРµ РёР·РјРµРЅРµРЅРёРµ СЂР°Р·РјРµСЂР° РєР°РјРµСЂС‹
         mainCamera.orthographicSize = Mathf.Lerp(mainCamera.orthographicSize, targetSize, Time.deltaTime * 3f);
     }
 
-    // Добавляем метод для уменьшения камеры
+    // Р”РѕР±Р°РІР»СЏРµРј РјРµС‚РѕРґ РґР»СЏ СѓРјРµРЅСЊС€РµРЅРёСЏ РєР°РјРµСЂС‹
     public void SetSmallCamera()
     {
         isBossFight = true;
     }
 
-    // Модифицируем метод сброса камеры
+    // РњРѕРґРёС„РёС†РёСЂСѓРµРј РјРµС‚РѕРґ СЃР±СЂРѕСЃР° РєР°РјРµСЂС‹
     public void ResetCam()
     {
         mainCamera = Camera.main;

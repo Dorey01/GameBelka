@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.ninito.unityprojectlinter": {
+      "version": "https://github.com/ninito-ph/UnityProjectLinter.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "81930ebf103e4afea2c66941630d5f021ec61a3b"
+    },
     "com.unity.2d.animation": {
       "version": "9.1.1",
       "depth": 1,

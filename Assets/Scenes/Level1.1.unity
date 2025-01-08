@@ -2464,7 +2464,7 @@ Transform:
   m_GameObject: {fileID: 452590986}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 36.71, y: 1.59, z: -0.034189157}
+  m_LocalPosition: {x: 36.71, y: 1.99, z: -0.034189157}
   m_LocalScale: {x: 0.22641398, y: 0.2208917, z: 0.2208917}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10390,6 +10390,7 @@ MonoBehaviour:
   jump: {fileID: 0}
   jumpjump: {fileID: 0}
   space: {fileID: 0}
+  boss: {fileID: 0}
   e: {fileID: 0}
   run: {fileID: 1886287716}
 --- !u!61 &1161652433
@@ -10577,6 +10578,7 @@ MonoBehaviour:
   jump: {fileID: 1229142563}
   jumpjump: {fileID: 0}
   space: {fileID: 0}
+  boss: {fileID: 0}
   e: {fileID: 0}
   run: {fileID: 0}
 --- !u!1 &1179692758
@@ -10794,6 +10796,7 @@ MonoBehaviour:
   jump: {fileID: 0}
   jumpjump: {fileID: 0}
   space: {fileID: 0}
+  boss: {fileID: 0}
   e: {fileID: 656414958}
   run: {fileID: 0}
 --- !u!1 &1229142563
@@ -12234,6 +12237,7 @@ MonoBehaviour:
   jump: {fileID: 0}
   jumpjump: {fileID: 0}
   space: {fileID: 341157951}
+  boss: {fileID: 0}
   e: {fileID: 0}
   run: {fileID: 0}
 --- !u!1 &1432183939
@@ -14792,6 +14796,7 @@ MonoBehaviour:
   jump: {fileID: 0}
   jumpjump: {fileID: 1611793845}
   space: {fileID: 0}
+  boss: {fileID: 0}
   e: {fileID: 0}
   run: {fileID: 0}
 --- !u!1 &2082142615

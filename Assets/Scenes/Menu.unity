@@ -751,6 +751,8 @@ GameObject:
   - component: {fileID: 445976407}
   - component: {fileID: 445976406}
   - component: {fileID: 445976410}
+  - component: {fileID: 445976411}
+  - component: {fileID: 445976412}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -845,6 +847,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 0.5
+--- !u!114 &445976411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 445976405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85e011827dbea45498e76c1d07159c40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &445976412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 445976405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b094afe9d9d1d894fb5b345972b155bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  followTransform: {fileID: 0}
+  mainCamera: {fileID: 0}
+  bossOffset: {x: 2, y: 1, z: 0}
+  reset: {x: 0, y: 0, z: 0}
+  defaultSize: 5
+  bossSize: 3
+  isBossFight: 0
+  isBossFight1: 0
+  cameraMenu: {fileID: 0}
 --- !u!1 &471982949
 GameObject:
   m_ObjectHideFlags: 0
@@ -1962,7 +1997,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'bet 0.7v
+  m_text: 'bet 0.9v
 
 '
   m_isRightToLeft: 0

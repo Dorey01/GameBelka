@@ -2,14 +2,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 public class CameraMenu : MonoBehaviour
 {
-    public float speed = 5f; // Скорость движения камеры
+    public float speed = 5f; // РЎРєРѕСЂРѕСЃС‚СЊ РґРІРёР¶РµРЅРёСЏ РєР°РјРµСЂС‹
 
-    void Update()
+    private void Update()
     {
-        if (SceneManager.GetActiveScene().name == "Menu")
-        {
-            // Двигаем камеру вправо по оси X
+
+            // Р”РІРёРіР°РµРј РєР°РјРµСЂСѓ РІРїСЂР°РІРѕ РїРѕ РѕСЃРё X
             transform.Translate(Vector3.right * speed * Time.deltaTime);
-        }
+        
     }
 }

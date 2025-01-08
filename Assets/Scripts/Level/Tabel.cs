@@ -10,6 +10,7 @@ public class Tabel : MonoBehaviour
     public GameObject jump;
     public GameObject jumpjump;
     public GameObject space;
+    public GameObject boss;
     public GameObject e;
     public GameObject run;
     int _jump, _space, _jumpjump, _e;
@@ -55,6 +56,7 @@ public class Tabel : MonoBehaviour
             if (space != null) space.SetActive(false);
             if (e != null) e.SetActive(false);
             if (run != null) run.SetActive(false);
+            if (boss != null) boss.SetActive(false);
             tabelAct.SetActive(false);
         }
     }
@@ -77,6 +79,9 @@ public class Tabel : MonoBehaviour
                 break;
             case "run":
                 ActivateRun();
+                break;
+            case "boss":
+                ActivateBoss();
                 break;
             default:
                 Debug.LogWarning($"Неизвестный тип таблички: {tabelType}");
@@ -143,6 +148,12 @@ public class Tabel : MonoBehaviour
             player.UnlockWallJump();
             ShowActivationMessage("Прыжок от стены разблокирован!");
         }
+    }
+    private void ActivateBoss()
+    {
+        boss.SetActive(true);
+        tabelAct.SetActive(true);
+
     }
 
     private void SetCheckpoint()

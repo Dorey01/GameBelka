@@ -1,16 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.UI;
 using UnityEngine;
- 
+
 
 public class Enemy : MonoBehaviour
 {
     private float timeBtwAttack;
     public float startTimeBtwAttack;
 
-    public int health; 
-    public float moveSpeed = 2f; 
+    public int health;
+    public float moveSpeed = 2f;
     public float moveDistance = 1f; // ��
     public float attackRange = 1f; // ��������� ��� �����
     public Animator animator; // ������ �� ��������
@@ -46,7 +43,7 @@ public class Enemy : MonoBehaviour
             {
                 collider.enabled = false;
             }
-            
+
             // Замораживаем объект на месте
             Rigidbody2D rb = GetComponent<Rigidbody2D>();
             if (rb != null)
@@ -54,7 +51,7 @@ public class Enemy : MonoBehaviour
                 rb.velocity = Vector2.zero; // Обнуляем скорость
                 rb.constraints = RigidbodyConstraints2D.FreezeAll; // Замораживаем все движения
             }
-            
+
             health = 0;
             animator.SetFloat("Health", health);
             Destroy(gameObject, 1f);
@@ -92,7 +89,8 @@ public class Enemy : MonoBehaviour
     {
         // ������ ���� ������, ���� � ���� �����
         Collider2D[] collidersFront = Physics2D.OverlapCircleAll(playerCheck.position, 0.001f); //��� ��������� �������������� � ������ (���� ����� ����� ����� �� ��������� >0)
-        if (collidersFront.Length > 0) { 
+        if (collidersFront.Length > 0)
+        {
             playerController.ChangeLife(-1); // ��������� ���� � ������
         }
     }

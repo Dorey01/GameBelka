@@ -16,10 +16,7 @@ public class PauseS : MonoBehaviour
     }
     public void Puse()
     {
-        
-
-
-        if (panel.active == true)
+        if (panel.activeSelf)
         {
             panel.SetActive(false);
             Time.timeScale = 1f;
@@ -49,7 +46,7 @@ public class PauseS : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (panel.active == true)
+            if (panel.activeSelf)
             {
                 panel.SetActive(false);
                 Time.timeScale = 1f;
@@ -59,7 +56,6 @@ public class PauseS : MonoBehaviour
                 panel.SetActive(true);
                 Time.timeScale = 0f;
             }
-     
         }
     }
 }

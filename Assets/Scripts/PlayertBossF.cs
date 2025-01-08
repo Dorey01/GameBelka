@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /*
@@ -100,6 +101,10 @@ public class PlayertBossF : MonoBehaviour
         cameraFollow.ResetCam();
         scrol.SetActive(false);
         bossDead = true;
+        if (SceneManager.GetActiveScene().name == "Level2.2")
+        {
+            SceneManager.LoadScene("TheEndHistory"); // или другую сцену
+        }
     }
 
     private void TransitionToState(IBattleState newState)
